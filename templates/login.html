@@ -16,21 +16,24 @@
                 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0a0e27;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            color: #e0e0e0;
         }
 
         .login-container {
-            background: white;
-            border-radius: 20px;
+            background: #1a1f3a;
+            border-radius: 12px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             width: 100%;
             max-width: 400px;
+            backdrop-filter: blur(10px);
         }
 
         .login-header {
@@ -39,14 +42,19 @@
         }
 
         .login-header h1 {
-            color: #333;
             font-size: 2rem;
             margin-bottom: 10px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .login-header p {
-            color: #666;
+            color: #b0b0b0;
             font-size: 0.9rem;
+            opacity: 0.8;
         }
 
         .form-group {
@@ -56,7 +64,7 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #333;
+            color: #ffffff;
             font-weight: 500;
             font-size: 0.9rem;
         }
@@ -64,25 +72,32 @@
         .form-group input {
             width: 100%;
             padding: 12px 18px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             font-size: 1rem;
             outline: none;
             transition: border-color 0.3s ease;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
         }
 
         .form-group input:focus {
             border-color: #667eea;
         }
 
+        .form-group input::placeholder {
+            color: #666;
+        }
+
         .error-message {
-            background: #ffebee;
-            color: #c62828;
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
             font-size: 0.9rem;
             display: none;
+            border: 1px solid rgba(255, 107, 107, 0.3);
         }
 
         .error-message.show {
