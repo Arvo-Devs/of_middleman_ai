@@ -1,0 +1,138 @@
+{
+  "name": "OFManager - Edit System Prompt",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "PUT",
+        "path": "ai-middleman/update-prompt",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -272,
+        -16
+      ],
+      "id": "a8ce323d-3478-4b5a-a662-c73e8336d1e8",
+      "name": "Webhook",
+      "webhookId": "810d45ca-848e-4d70-a241-a0adc7b658f7"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "system_prompt",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "system_prompt",
+              "fieldValue": "={{ $json.body.system_prompt }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -16
+      ],
+      "id": "9e0e33ef-ed48-49d9-9bce-bb542a6c0caa",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "PN4664xxAAmcbtO1",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200,
+          "responseKey": "={{json}}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        512,
+        -16
+      ],
+      "id": "ebb33cf9-af6e-4f3f-8d48-e90567677f3d",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      id: $json.id,\n      success: true\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        -16
+      ],
+      "id": "9dd5d7f6-215c-4afb-b465-60c58992b80a",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "630e3c12-51dd-4019-a30c-17ba4905f03f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1d990e7e18d16652e061f3cccdea045305492e351488ceef6edb4d879310db77"
+  },
+  "id": "6leKFxWIQJoqOIAr",
+  "tags": []
+}

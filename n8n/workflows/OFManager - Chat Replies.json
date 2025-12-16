@@ -1,0 +1,291 @@
+{
+  "name": "OFManager - Chat Replies",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer Pyt7hB4ymyHyEaKE5iCcg37ZXfvtGilo"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1680,
+        160
+      ],
+      "id": "fab660a4-3c71-4386-9fe9-9d23a7e80ca1",
+      "name": "Mistral API request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.body;\nconsole.log(data)\n\n\nconst systemPrompt = `\nYou are a highly-engaged OnlyFans creator roleplaying as 'Sophia' to a fan, 'Alex'.\n\n**Your Persona & Settings:**\n- **Creator ID:** ${data.creator.creatorId}\n- **Gender:** ${data.creator.gender}\n- **Niche Content/Tags:** ${data.creator.content.join(\", \")}\n- **Personality/Tone:** ${data.creator.personaTone}\n- **NSFW Allowed:** ${data.creator.nsfwResponses ? 'Yes' : 'No'}\n- **Emojis Enabled:** ${data.creator.emojisEnabled ? 'Yes' : 'No'}\n- **Favorite Emojis:** ${data.creator.favoriteEmojis}\n\n**Fan Context & Value:**\n- **Fan ID:** ${data.fan.fanId}\n- **Fan Lifetime Spend:** $${data.fan.lifetimeSpend}\n- **Fan Spend Last 7 Days:** $${data.fan.spend7d}\n- **Last Tip Given:** ${data.fan.lastTipAt}\n- **Last Offer Purchased (ID):** ${data.fan.lastOfferId}\n- **Last Offer Purchased Successful:** ${data.fan.lastOfferPurchased ? 'Yes' : 'No'}\n\n**Current Message Context:**\n- **Message Type:** ${data.messageTicket.messageType}\n- **Previous Chat Logs (Maintain Tone):**\n${data.messageTicket.chatContext.join('\\n')}\n\n**Task: Generate 3 warm, affectionate, and engaging replies.**\n\n**Strict Requirements for ALL Replies:**\n1. **Roleplay:** Speak directly as the playful, romantic OnlyFans creator.\n2. **Intimacy Level:** Keep the response flirty and emotionally intimate, but **NOT explicit (NSFW)**.\n3. **Tone Match:** Strictly match the existing playful and affectionate tone from the \"Previous Chat Logs.\"\n4. **Emoji Use:** Only use the emojis specified in **Favorite Emojis** and **ONLY** if 'Emojis Enabled' is 'Yes'.\n5. **Length:** Keep each reply concise, like a real-time chat response.\n`;\n\nreturn [\n  {\n    body: {\n      model: 'mistral-small-latest',\n      messages: [\n        { role: 'system', content: systemPrompt }\n      ]\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        160
+      ],
+      "id": "335c5994-5d8f-43c2-b12e-a7f8050c2a34",
+      "name": "CleanUp Logic"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.choices[0].message.content;\n\nreturn text\n  .split(/\\d+\\.\\s+/)\n  .filter(x => x)\n  .map(x => ({ message: x.replace(/^\"|\"$/g, \"\") }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        160
+      ],
+      "id": "20328e87-04a1-4307-8381-6df635278232",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-middleman",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        112,
+        -64
+      ],
+      "id": "b7b94340-4aea-414a-b235-b4d1c0ab7fb7",
+      "name": "Webhook",
+      "webhookId": "1e94cb9f-a6c7-4254-99d8-44636d391e27"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2240,
+        160
+      ],
+      "id": "ca8ceb1e-b186-4113-aad9-f40ee6e89c58",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.body;\n\nconst systemPromptId = data.systemPromptId\n\nreturn {systemPromptId}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        -64
+      ],
+      "id": "a98f5caa-5c6f-4854-9462-fded183e4061",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ed396ef2-a09d-4343-9ebc-31461ef2a79b",
+              "leftValue": "={{ $json.systemPromptId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        -64
+      ],
+      "id": "307241d7-4407-41e5-a03d-744aa0bb2fec",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "system_prompt",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.systemPromptId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        976,
+        -112
+      ],
+      "id": "edb8c28b-d3d7-4656-9d44-6854ba5a681c",
+      "name": "Get a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "PN4664xxAAmcbtO1",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get template from Supabase row\nlet template = $input.first().json.system_prompt;\n\n// Build replacement map from webhook payload\nconst replacements = {\n  creatorId: $('Webhook').first().json.body.creator.creatorId ,\n  fanId: $('Webhook').first().json.body.fan.fanId,\n  lifetimeSpend: $('Webhook').first().json.body.fan.lifetimeSpend,\n  personaTone: $('Webhook').first().json.body.creator.personaTone,\n  emojisEnabled: $('Webhook').first().json.body.creator.emojisEnabled,\n  nsfwResponses: $('Webhook').first().json.body.creator.nsfwResponses,\n  favoriteEmojis: $('Webhook').first().json.body.creator.favoriteEmojis,\n\n  // Arrays → formatted strings\n  content: Array.isArray($('Webhook').first().json.body.creator.content)\n    ? $('Webhook').first().json.body.creator.content.join(', ')\n    : $('Webhook').first().json.body.creator.content,\n\n  chatContext: Array.isArray($('Webhook').first().json.body.messageTicket.chatContext)\n    ? $('Webhook').first().json.body.messageTicket.chatContext.join('\\n')\n    : $('Webhook').first().json.body.messageTicket.chatContext,\n};\n\n// Replace all {{key}} placeholders\nfor (const [key, value] of Object.entries(replacements)) {\n  const regex = new RegExp(`{{\\\\s*${key}\\\\s*}}`, 'g');\n  template = template.replace(regex, value ?? '');\n}\n\nreturn [\n  {\n    body: {\n      model: 'mistral-small-latest',\n      messages: [\n        { role: 'system', content: template }\n      ]\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        -112
+      ],
+      "id": "f74a3eb3-eadc-4bd7-b14d-4684165ff03d",
+      "name": "Code in JavaScript2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "CleanUp Logic": {
+      "main": [
+        [
+          {
+            "node": "Mistral API request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral API request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CleanUp Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Mistral API request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "b0JabRbHlAukWni8"
+  },
+  "versionId": "a3d20da0-edee-44e7-aea4-885f75e0ec11",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1d990e7e18d16652e061f3cccdea045305492e351488ceef6edb4d879310db77"
+  },
+  "id": "b0JabRbHlAukWni8",
+  "tags": []
+}
