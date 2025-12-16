@@ -1,0 +1,120 @@
+{
+  "name": "OFManager - Display System Prompts",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "ai-middleman/list-prompts",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -176,
+        16
+      ],
+      "id": "fe09424d-9e8a-41e5-84fa-57b8a51afcef",
+      "name": "Webhook",
+      "webhookId": "d1d64196-c497-4224-9f47-da67499321e8"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "system_prompt",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        32,
+        16
+      ],
+      "id": "4917e2e1-5a52-413b-92c4-0ed3929579be",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "PN4664xxAAmcbtO1",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200,
+          "responseKey": "={{ json }}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        480,
+        16
+      ],
+      "id": "9e315585-1e8b-4d88-b290-dcc3f4f4da3e",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const prompts = $input.all().map(item => item.json);\n\nreturn [\n  {\n    json: {\n      success: true,\n      prompts,\n      count: prompts.length\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        16
+      ],
+      "id": "9e14f5e1-e047-46a0-b62e-aa0228549203",
+      "name": "Code in JavaScript",
+      "executeOnce": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fc7f8d97-d6ad-44de-ab18-cc11ef4eda43",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1d990e7e18d16652e061f3cccdea045305492e351488ceef6edb4d879310db77"
+  },
+  "id": "XTigJ82n7tbAi84E",
+  "tags": []
+}

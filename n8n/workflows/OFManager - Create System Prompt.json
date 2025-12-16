@@ -1,0 +1,126 @@
+{
+  "name": "OFManager - Create System Prompt",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-middleman/create-system-prompt",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "06bad6d4-9565-462a-8078-011aabc94184",
+      "name": "Webhook",
+      "webhookId": "d90ea3c0-2aba-491e-80f8-ce259ac046bc"
+    },
+    {
+      "parameters": {
+        "jsCode": "const systemPrompt = $input.first().json.body[\"system_prompt\"]\n\nif (!systemPrompt) {\n  throw new Error('System Prompt is Required');\n}\n\nreturn [{\n  systemPrompt\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4d8a8dc5-03a0-4757-8c0c-66bad20dbd49",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "tableId": "system_prompt",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "system_prompt",
+              "fieldValue": "={{ $json.systemPrompt }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ac052cc7-c087-432b-b9e9-f5478d407ef0",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "PN4664xxAAmcbtO1",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200,
+          "responseKey": "={   \"success\": true,   \n\"message\": \"System Prompt created and added to the DB\",\n\"id\": {{ $json.id }}}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "77213ddb-8a27-4fae-bcdf-3b33005dedc4",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "18f05b8c-b998-4e22-8465-4abeb59c36e2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1d990e7e18d16652e061f3cccdea045305492e351488ceef6edb4d879310db77"
+  },
+  "id": "EcEnN4nKHQjYEIQF",
+  "tags": []
+}
